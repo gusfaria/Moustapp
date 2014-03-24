@@ -18,10 +18,10 @@ if ((($_FILES["file"]["type"] == "image/gif")
 			   // echo "<b>".$_FILES["file"]["name"] . " already exists. </b>";
 			}else
 			{
-			   move_uploaded_file($_FILES["file"]["tmp_name"],"images/". $_FILES["file"]["name"]);
+			   move_uploaded_file($_FILES["file"]["tmp_name"],"images/profile/". $_FILES["file"]["name"]);
 			   // echo "Stored in: " . "images/" . $_FILES["file"]["name"]."<br />";
 			   ?>
-			     <img style="display:none;" id='input_image' src="images/<?php echo $_FILES["file"]["name"]; ?>"  width="300" alt="Image path Invalid" >
+			     <img style="display:none;" id='input_image' src="images/profile/<?php echo $_FILES["file"]["name"]; ?>"  width="300" alt="Image path Invalid" >
 			  <?php
 		   }
 		}

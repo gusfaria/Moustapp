@@ -1,88 +1,116 @@
-var App = (function(){
-	var app_images = document.getElementById('app_images'),
-		input_image = document.getElementById('input_image'),
+function validate(){
+    var filevalue=document.getElementById("file").value;
+ 
+ if(filevalue=="" || filevalue.length<1){
+     alert("Select File.");
+     var file = document.getElementById("file").focus();
+     return false;
+   }
 
-		viewport = document.createElement('canvas'),
-		context = viewport.getContext('2d');
+ return true;   
+}
 
-	viewport.id = 'viewport';
-	viewport.width = 500;
-	viewport.height = 672;
+var app = app || {};
+app = (function(){
+    var imgArray = [],
+        input = document.getElementById('input_image'),
+        output = document.getElementById('output_image'),
+        len = imageList.length,
+        upload_img = function(){
+        for(var i = 0; i < len; i++ ){
+            var ext = imageList[i].substring(imageList[i].lastIndexOf('.') + 1);
+            if(ext == 'png' || ext == 'jpg' || ext == 'jpeg'){
+                imgArray.push(imageList[i]);
+                var element_img = document.createElement('img');
+                input.appendChild(element_img);
+                element_img.className = ('raw_img');
+                element_img.src = 'images/profile/' + imageList[i];
+            }
+        }
+    };
+    upload_img();
 
-	app_images.appendChild(viewport);
+    var x = 0, 
+        y = 0, 
+        w = 0,
+        h = 0;
 
-	var imageObj = new Image();
-    imageObj.onload = function() {
-        context.drawImage(imageObj, 0, 0, 500, 672);
+    var detectFaces = function(src){
+        var canvas = document.createElement('canvas'),
+            ctx = canvas.getContext('2d');
+            output.appendChild(canvas);
+
+        canvas.className = 'img_output';
+
+        var image = new Image();
+        image.src = src;
+        image.onload = function(){
+
+            var comp = ccv.detect_objects({ "canvas" : ccv.grayscale(ccv.pre(image)),
+                                            "cascade" : cascade,
+                                            "interval" : 5,
+                                            "min_neighbors" : 1 });
+            canvas.width = image.width;
+            canvas.height = image.height;
+            ctx.drawImage(image, 0, 0);
+            console.log(4);
+            x = comp[0].x + (comp[0].width / 2) - (comp[0].width/2)/2;
+            y = comp[0].y + (comp[0].height / 2) + ((comp[0].height /6)/2) + 20;
+            w = comp[0].width/2;
+            h = comp[0].height /6;
+            console.log(5);
+        }
+
         
-        var canvas = document.createElement('canvas');
-    	canvas.id = 'photoCanvas';
-    	context = canvas.getContext('2d');
-    	var photos = document.getElementById('photos');
+        this.effect = function(){
+            
+            var moustachecanvas = document.createElement("canvas");
+            moustachecanvas.id = 'moustache';
 
-        var importCanvas = function(c){
-        	
+            moustachecanvas.width = 300;
+            moustachecanvas.height = 300;
 
-        	var newimg = new Image();
-        	canvas.width = 500;
-        	canvas.height = 672;
-        	context.drawImage(c, 0, 0, 500, 672);
-        	photos.appendChild(canvas);
+            var moustache_ctx  = moustachecanvas.getContext("2d");
+            output_image.appendChild(moustachecanvas);
+
+            var moustache = new Image();
+            moustache.onload = function(){
+                console.log('moustify');
+                moustache_ctx.drawImage(moustache,x+2, y, w, h);
         };
+        moustache.src = 'images/moustache.png';
+        };
+        
+        this.effect();
 
-        importCanvas(viewport);
-        var detectFaces = function(){
-			var comp = ccv.detect_objects({ "canvas" : ccv.grayscale(ccv.pre(canvas)),
-			 	"cascade" : cascade,
-			 	"interval" : 5,
-			 	"min_neighbors" : 1 
-			});		
+    };
 
-			console.log(comp);
-		};
-		detectFaces();
+    
+    var upload_moustache = function (){
+        for( var i = 0; i <= imgArray.length-1; i++ ){
+            
+            detectFaces('images/profile/'+imgArray[i]);
+            
+        }    
+    };
+    upload_moustache();
 
+    return {
+        upload_moustache : upload_moustache,
+        detectFaces : detectFaces,
+        imgArray : imgArray
+    }
 
-
-      };
-    imageObj.src = input_image.src;
-
-    // dataURL = viewport.toDataURL();
-    // console.log(dataURL);
-
-  
 })();
 
 
 
-// function detectFaces(src) {
 
-// var canvas = document.createElement("canvas");
-// var ctx = canvas.getContext("2d");
-// var image = new Image();
 
-// image.onload = function () {
-//     var elapsed_time = (new Date()).getTime();
-//     var comp = ccv.detect_objects({ "canvas" : ccv.grayscale(ccv.pre(image)),
-//     								"cascade" : cascade,
-//     								"interval" : 5,
-//     								"min_neighbors" : 1 });
-//     canvas.width = image.width;
-//     canvas.height = image.height;
-    
-//     ctx.drawImage(image, 0, 0);
-//     ctx.lineWidth = 3;
-//     ctx.strokeStyle = "#f00";
-//     for (var i = 0; i < comp.length; i++)
-//     	ctx.strokeRect(comp[i].x, comp[i].y, comp[i].width, comp[i].height);
-    	
-//    	$("#photos").append(canvas); 
-// }
-
-// image.src = src;
-
-// }
-
-// detectFaces('resources/buscemi.jpg');
-// detectFaces('resources/jackson.png');
-
+//THINGS TO DO:
+//upload all the images
+// detect face
+//insert the mustache
+//add name to the picture
+//store the names on localhost
+//change moustache
